@@ -10,7 +10,12 @@ import plotly.express as px
 import plotly.io as pio
 import pandas as pd
 import yfinance as yf
-from curl_cffi import requests
+# --- CÓDIGO ANTIGO COMENTADO ---
+# from curl_cffi import requests
+# -------------------------------
+# --- NOVO CÓDIGO ---
+import requests
+# -------------------
 from datetime import timedelta
 
 torch.manual_seed(42)
@@ -34,8 +39,19 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
     torch.manual_seed(42)
     np.random.seed(42)
 
-    # ── Dados via yfinance ──
-    session = requests.Session(impersonate="chrome")
+    # −− Dados via yfinance −−
+    # --- CÓDIGO ANTIGO COMENTADO ---
+    # session = requests.Session(impersonate="chrome")
+    # -------------------------------
+    # --- NOVO CÓDIGO ---
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive"
+    })
+    # -------------------
     stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
     data = stock.history(period=f'{periodo_anos}y')
 
@@ -44,18 +60,18 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
 
     df = data.reset_index()[['Date', 'Close']]
 
-    # ── Separar treino/teste (80/20) ──
+    # −− Separar treino/teste (80/20) −−
     split = int(0.8 * len(df))
     df_train, df_teste = df.iloc[:split], df.iloc[split:]
     y_train, y_test = df_train['Close'].values, df_teste['Close'].values
 
-    # ── Normalizar ──
+    # −− Normalizar −−
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaler.fit(y_train.reshape(-1, 1))
     y_train_s = scaler.transform(y_train.reshape(-1, 1)).flatten()
     y_test_s = scaler.transform(y_test.reshape(-1, 1)).flatten()
 
-    # ── Sequências LSTM ──
+    # −− Sequências LSTM −−
     lookback, horizonte = 60, 15
     X_tr, y_tr = [], []
     for i in range(len(y_train_s) - lookback - horizonte + 1):
@@ -88,7 +104,7 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
         if (epoch + 1) % 50 == 0:
             print(f'  Época {epoch+1}/200 — Loss: {loss_avg/len(loader):.6f}')
 
-    # ── Predição ──
+    # −− Predição −−
     model.eval()
     with torch.no_grad():
         y_pred = model(X_test).numpy()
@@ -99,14 +115,14 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
 
     mape = mean_absolute_percentage_error(y_test_real, y_pred_real)
 
-    # ── Salvar modelo ──
+    # −− Salvar modelo −−
     caminho = None
     if salvar_modelo:
         nome = f'modelo_lstm_{ticker.lower()}.pth'
         caminho = os.path.join(os.getcwd(), nome)
         torch.save(model.state_dict(), caminho)
 
-    # ── Montar DataFrame para o gráfico ──
+    # −− Montar DataFrame para o gráfico −−
     train_end = split - horizonte + 1
     test_start = split + lookback
 
@@ -125,9 +141,9 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
                       'Tipo': 'Previsto'}),
     ], ignore_index=True)
 
-    # ── Gráfico Plotly ──
+    # −− Gráfico Plotly −−
     fig = px.line(df_plot, x='Date', y='Price', color='Tipo',
-                  title=f'🧠 LSTM — Previsão {ticker.upper()} ({periodo_anos} ano(s)) | MAPE: {mape:.2%}',
+                  title=f'🪀 LSTM — Previsão {ticker.upper()} ({periodo_anos} ano(s)) | MAPE: {mape:.2%}',
                   labels={'Price': 'Preço (R$)', 'Date': 'Data', 'Tipo': 'Tipo'})
     fig.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#ffffff'),
@@ -144,7 +160,18 @@ def previsao_futuro(ticker: str, periodo_anos: int = 5):
     torch.manual_seed(42)
     np.random.seed(42)
 
-    session = requests.Session(impersonate="chrome")
+    # --- CÓDIGO ANTIGO COMENTADO ---
+    # session = requests.Session(impersonate="chrome")
+    # -------------------------------
+    # --- NOVO CÓDIGO ---
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive"
+    })
+    # -------------------
     stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
     data = stock.history(period=f'{periodo_anos}y')
 
@@ -160,7 +187,7 @@ def previsao_futuro(ticker: str, periodo_anos: int = 5):
     scaled_data = scaler.transform(close_prices)
     last_sequence = scaled_data[-seq_len:].reshape(1, seq_len, 1)
 
-    # ── Carregar modelo salvo ──
+    # −− Carregar modelo salvo −−
     caminho_modelo = f'modelo_lstm_{ticker.lower()}.pth'
     try:
         model = LSTM(input_size=1, hidden_size=80, num_layers=2, output_size=15)  # ← agora funciona!
@@ -201,7 +228,18 @@ def previsao_futuro(ticker: str, periodo_anos: int = 5):
     }
 
 def gerar_previsao_exponencial(ticker: str, periodo_anos: int):
-    session = requests.Session(impersonate="chrome")
+    # --- CÓDIGO ANTIGO COMENTADO ---
+    # session = requests.Session(impersonate="chrome")
+    # -------------------------------
+    # --- NOVO CÓDIGO ---
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive"
+    })
+    # -------------------
     stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
     data = stock.history(period=f'{periodo_anos}y')
 

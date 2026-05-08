@@ -4,7 +4,8 @@ import plotly.express as px
 import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from curl_cffi import requests
+# from curl_cffi import requests  # <-- Código antigo comentado
+import requests  # <-- Novo import
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import acf, pacf
 import numpy as np
@@ -21,7 +22,18 @@ def gerar_analise(ticker: str, periodo_anos: int):
     Returns:
         dict com os HTMLs de cada gráfico
     """
-    session = requests.Session(impersonate="chrome")
+    # session = requests.Session(impersonate="chrome")  # <-- Código antigo comentado
+
+    # <-- Novo código com headers fortes
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive"
+    })
+    # -->
+
     stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
     data = stock.history(period=f'{periodo_anos}y')
 
@@ -40,10 +52,10 @@ def gerar_analise(ticker: str, periodo_anos: int):
 
     resultados = {}
 
-    # ── 1. Cotação histórica ──
+    # ―― 1. Cotação histórica ――
     cotacao = px.line(
         data2.reset_index(), x='ds', y='y',
-        title=f'📈 Cotação {ticker.upper()} — Período {periodo_anos} ano(s)',
+        title=f'\ud83d\udcc8 Cotação {ticker.upper()} — Período {periodo_anos} ano(s)',
         labels={'ds': 'Período', 'y': 'Preço (R$)'}
     )
     cotacao.update_layout(
@@ -56,7 +68,7 @@ def gerar_analise(ticker: str, periodo_anos: int):
     )
     resultados['cotacao'] = pio.to_html(cotacao, include_plotlyjs='cdn', full_html=False)
 
-    # ── 2. Decomposição Sazonal ──
+    # ―― 2. Decomposição Sazonal ――
     decompose = seasonal_decompose(data2['y'], model='multiplicative', period=365)
 
     fig_dec = make_subplots(
@@ -74,7 +86,7 @@ def gerar_analise(ticker: str, periodo_anos: int):
                                  line=dict(color='#ff4757')), row=4, col=1)
     fig_dec.update_layout(
         height=900,
-        title_text=f'🔍 Decomposição Sazonal — {ticker.upper()} ({periodo_anos} ano(s))',
+        title_text=f'\ud83d\udd0d Decomposição Sazonal — {ticker.upper()} ({periodo_anos} ano(s))',
         template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
@@ -83,7 +95,7 @@ def gerar_analise(ticker: str, periodo_anos: int):
     )
     resultados['decomposicao'] = pio.to_html(fig_dec, include_plotlyjs='cdn', full_html=False)
 
-    # ── 3. Month Plot, Quarter Plot, ACF, PACF ──
+    # ―― 3. Month Plot, Quarter Plot, ACF, PACF ――
     df_temp = pd.DataFrame({'value': data2['y'].values}, index=data2.index)
     df_temp['month'] = df_temp.index.month
     monthly_avg = df_temp.groupby('month')['value'].mean()
@@ -157,7 +169,7 @@ def gerar_analise(ticker: str, periodo_anos: int):
 
     fig_ts.update_layout(
         height=800,
-        title_text=f'📊 Análise de Série Temporal — {ticker.upper()}',
+        title_text=f'\ud83d\udcca Análise de Série Temporal — {ticker.upper()}',
         template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
