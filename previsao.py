@@ -44,23 +44,9 @@ def gerar_previsao(ticker: str, periodo_anos: int, salvar_modelo: bool = True):
     # session = requests.Session(impersonate="chrome")
     # -------------------------------
     # --- NOVO CÓDIGO ---
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': 'https://finance.yahoo.com/',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="121", "Google Chrome";v="121"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'Connection': 'keep-alive',
-    })
+    
     # -------------------
-    stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
+    stock = yf.Ticker(f'{ticker.upper()}.SA')
     data = stock.history(period=f'{periodo_anos}y')
 
     if data.empty:
@@ -172,23 +158,9 @@ def previsao_futuro(ticker: str, periodo_anos: int = 5):
     # session = requests.Session(impersonate="chrome")
     # -------------------------------
     # --- NOVO CÓDIGO ---
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': 'https://finance.yahoo.com/',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="121", "Google Chrome";v="121"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'Connection': 'keep-alive',
-    })
+    
     # -------------------
-    stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
+    stock = yf.Ticker(f'{ticker.upper()}.SA')
     data = stock.history(period=f'{periodo_anos}y')
 
     if data.empty:
@@ -248,23 +220,9 @@ def gerar_previsao_exponencial(ticker: str, periodo_anos: int):
     # session = requests.Session(impersonate="chrome")
     # -------------------------------
     # --- NOVO CÓDIGO ---
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': 'https://finance.yahoo.com/',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="121", "Google Chrome";v="121"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'Connection': 'keep-alive',
-    })
+    
     # -------------------
-    stock = yf.Ticker(f'{ticker.upper()}.SA', session=session)
+    stock = yf.Ticker(f'{ticker.upper()}.SA')
     data = stock.history(period=f'{periodo_anos}y')
 
     if data.empty:
