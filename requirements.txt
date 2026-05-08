@@ -1,5 +1,5 @@
 Flask==3.0.0
-yfinance==0.2.36
+yfinance
 pandas==2.2.0
 plotly==5.18.0
 statsmodels==0.14.1
