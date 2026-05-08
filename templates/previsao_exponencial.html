@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão Exponencial - {{ ticker }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff; min-height: 100vh; overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 191, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 191, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px; pointer-events: none; z-index: -1;
+        }
+        header { text-align: center; padding: 2rem 1rem; }
+        header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            background: linear-gradient(45deg, #00bfff, #0077ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; font-weight: 700; margin-bottom: 0.5rem;
+        }
+        .btn-voltar {
+            display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none;
+            border-radius: 8px; transition: all 0.3s ease; font-weight: 500;
+        }
+        .btn-voltar:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        main { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .error-box { background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; color: #ff4757; padding: 2rem; border-radius: 12px; text-align: center; font-size: 1.2rem; margin: 2rem auto; max-width: 600px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 3rem; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); }
+        .metrics { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .metric-box { background: rgba(0, 191, 255, 0.1); border: 1px solid rgba(0, 191, 255, 0.2); padding: 1.5rem 2.5rem; border-radius: 16px; text-align: center; min-width: 200px; }
+        .metric-box h4 { font-size: 1rem; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 500; }
+        .metric-box .value { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 700; color: #00bfff; }
+        .table-container { overflow-x: auto; margin-top: 2rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { background: rgba(0, 191, 255, 0.1); font-weight: 600; color: #00bfff; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .valor-futuro { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ ticker }} - Suavização Exponencial</h1>
+        <p>Análise de {{ periodo }} ano(s)</p>
+        <a href="/inicio" class="btn-voltar">← Voltar ao Início</a>
+    </header>
+
+    <main>
+        {% if erro %}
+            <div class="error-box">
+                <strong>Erro:</strong> {{ erro }}
+            </div>
+        {% else %}
+            <div class="metrics">
+                <div class="metric-box">
+                    <h4>Preço Atual</h4>
+                    <div class="value">R$ {{ ultimo_preco }}</div>
+                </div>
+                <div class="metric-box">
+                    <h4>MAPE (Backtest)</h4>
+                    <div class="value">{{ "%.2f"|format(mape * 100) }}%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    {{ grafico | safe }}
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1.5rem; color: #00bfff; text-align: center;">Projeção para os próximos 30 dias úteis</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Data Projetada</th>
+                                    <th>Preço Estimado (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in futuro %}
+                                <tr>
+                                    <td>{{ item.dia }}</td>
+                                    <td>{{ item.data }}</td>
+                                    <td class="valor-futuro">R$ {{ "%.2f"|format(item.valor) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>

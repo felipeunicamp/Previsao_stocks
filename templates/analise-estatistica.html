@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise {{ ticker }} — IbovPredict</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none; z-index: -1;
+        }
+        header {
+            text-align: center; padding: 2rem 1rem;
+        }
+        header h1 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            background: linear-gradient(45deg, #00ff88, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header h1 a { text-decoration: none; }
+        header p { opacity: 0.8; margin-top: 0.3rem; font-size: 1.1rem; }
+        main { max-width: 1200px; margin: 0 auto; padding: 0 1rem 3rem; }
+        .grafico-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .erro {
+            text-align: center; padding: 4rem 2rem;
+            color: #ff4757; font-size: 1.3rem;
+        }
+        .voltar {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            margin: 1rem 0;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #0a0a0f;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .voltar:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><a href="/inicio" style="background:linear-gradient(45deg,#00ff88,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">IbovPredict</a></h1>
+        <p>📊 Análise Estatística — <strong>{{ ticker }}</strong> ({{ periodo }} ano(s))</p>
+    </header>
+    <main>
+        {% if erro %}
+            <div class="erro">{{ erro }}</div>
+        {% else %}
+            <a href="/inicio" class="voltar">← Voltar</a>
+
+            <div class="grafico-card">{{ grafico_cotacao | safe }}</div>
+            <div class="grafico-card">{{ grafico_decomposicao | safe }}</div>
+            <div class="grafico-card">{{ grafico_serie | safe }}</div>
+        {% endif %}
+    </main>
+</body>
+</html>

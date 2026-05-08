@@ -1,0 +1,10 @@
+Flask==3.0.0
+yfinance==0.2.36
+pandas==2.2.0
+plotly==5.18.0
+statsmodels==0.14.1
+scikit-learn==1.4.0
+curl_cffi==0.5.9
+gunicorn==21.2.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.0+cpu

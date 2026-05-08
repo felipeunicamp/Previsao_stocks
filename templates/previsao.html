@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão {{ ticker }} — IbovPredict</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none; z-index: -1;
+        }
+        header {
+            text-align: center; padding: 2rem 1rem;
+        }
+        header h1 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            background: linear-gradient(45deg, #00ff88, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header h1 a { text-decoration: none; }
+        header p { opacity: 0.8; margin-top: 0.3rem; font-size: 1.1rem; }
+        main { max-width: 1200px; margin: 0 auto; padding: 0 1rem 3rem; }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .erro {
+            text-align: center; padding: 4rem 2rem;
+            color: #ff4757; font-size: 1.3rem;
+        }
+        .voltar {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            margin: 1rem 0;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #0a0a0f;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .voltar:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4); }
+        .info-bar {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+            justify-content: center; margin-bottom: 1rem;
+        }
+        .badge {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+        .badge span { color: #00ff88; font-weight: 700; }
+        table {
+            width: 100%; border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        th {
+            background: rgba(0, 255, 136, 0.15);
+            padding: 0.8rem; text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        td {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        tr:hover td { background: rgba(255, 255, 255, 0.05); }
+        .preco-cell { color: #00ff88; font-weight: 700; }
+        h2 { margin: 1.5rem 0 1rem; font-size: 1.5rem; }
+        .subtitle { opacity: 0.7; font-size: 0.9rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><a href="/inicio">IbovPredict</a></h1>
+        <p>🔮 Previsão LSTM — <strong>{{ ticker }}</strong> ({{ periodo }} ano(s))</p>
+    </header>
+    <main>
+        {% if erro %}
+            <div class="erro">{{ erro }}</div>
+        {% else %}
+            <a href="/inicio" class="voltar">← Voltar</a>
+
+            <div class="info-bar">
+                <div class="badge">MAPE: <span>{{ "%.2f"|format(mape*100) }}%</span></div>
+                <div class="badge">Último preço: <span>R$ {{ "%.2f"|format(futuro.ultimo_preco) }}</span></div>
+                <div class="badge">Em: <span>{{ futuro.ultima_data }}</span></div>
+            </div>
+
+            <div class="card">{{ grafico | safe }}</div>
+
+            <div class="card">
+                <h2>📅 Previsão — Próximos 15 dias úteis</h2>
+                <p class="subtitle">Valores previstos pelo modelo LSTM para {{ ticker }}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Data</th>
+                            <th>Previsão (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in futuro.previsoes %}
+                        <tr>
+                            <td>{{ p.dia }}</td>
+                            <td>{{ p.data }}</td>
+                            <td class="preco-cell">R$ {{ "%.2f"|format(p.valor) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>
